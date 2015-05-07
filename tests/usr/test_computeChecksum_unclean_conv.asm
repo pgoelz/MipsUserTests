@@ -14,14 +14,11 @@ main:
 	li $s2 9
 	li $s3 12
 	li $s4 15
-	li $s5 18
-	li $s6 21
-	li $s7 24
 	
-	# check pointer
-	bne	$s5	$gp	fail
-	bne	$s6	$sp	fail
-	bne	$s7	$fp	fail
+	# store pointers
+	move	$s5	$gp
+	move	$s6	$sp
+	move 	$s7	$fp
 	
 	# end storing
 	
