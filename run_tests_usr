@@ -1,0 +1,71 @@
+#! /bin/sh
+set -eu
+
+check() {
+    SOURCES="src/util.asm src/computeChecksum.asm src/moduloStr.asm src/knr2iban.asm src/iban2knr.asm"
+    TEST=$1
+
+    if [ ! -f "${TEST%.asm}.ref" ]; then
+        echo "Reference file missing for test $TEST"
+    else
+        set +e
+        mars ae127 se126 me nc sm 100000 $SOURCES "$TEST" > stdout.log 2> stderr.log
+        RES="$?"
+        set -e
+
+        echo "---> test '$TEST'"
+
+        case "$RES" in
+        0)
+            if diff --strip-trailing-cr -w -q "${TEST%.asm}.ref" "stdout.log"; then
+                echo "success"
+                echo
+                return 0
+            else
+                echo "failed: result differs"
+                echo "Expected:"
+                cat "${TEST%.asm}.ref"
+                echo
+                echo "Was:"
+                cat "stdout.log"
+                echo
+                return 1
+            fi
+            ;;
+
+        126)
+            echo "error: runtime failure, error message was:"
+            cat stderr.log
+            echo
+            ;;
+
+        127)
+            echo "error: assembler failed, error message was:"
+            cat stderr.log
+            echo
+            ;;
+
+        *)
+            echo "error: mars terminated with value '$RES', error message was:"
+            cat stderr.log
+            echo
+            ;;
+        esac
+        echo
+    fi
+    return 1
+}
+
+
+NTEST=0
+NPASS=0
+for I in tests/usr/*.asm; do
+	NTEST=$(($NTEST + 1))
+	if check $I; then
+		NPASS=$(($NPASS + 1))
+		continue
+	fi
+done
+echo '--------------------'
+echo "===> $NPASS/$NTEST passed"
+[ ! "$NPASS" -eq "$NTEST" ]
