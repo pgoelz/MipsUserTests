@@ -17,9 +17,12 @@ main:
 	li $s5 18
 	li $s6 21
 	li $s7 24
-	li $gp 27
-	li $sp 30
-	li $fp 33
+	
+	# check pointer
+	bne	$s5	$gp	fail
+	bne	$s6	$sp	fail
+	bne	$s7	$fp	fail
+	
 	# end storing
 	
 	la	$a0 ibanstr
@@ -32,12 +35,12 @@ main:
 	bne $s2 9  fail
 	bne $s3 12 fail
 	bne $s4 15 fail
-	bne $s5 18 fail
-	bne $s6 21 fail
-	bne $s7 24 fail
-	bne $gp 27 fail
-	bne $sp 30 fail
-	bne $fp 33 fail
+	
+	# check pointer
+	bne	$s5	$gp	fail
+	bne	$s6	$sp	fail
+	bne	$s7	$fp	fail
+	
 	# end checking
 	
 	li	$v0 1
